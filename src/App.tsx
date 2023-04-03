@@ -1,15 +1,33 @@
 import React, { useState } from 'react'
-import { Button, Container, Paper, TextField, Typography } from '@mui/material'
+import { Box, Button, Container, Paper, TextField, Typography } from '@mui/material'
 import { List, ListItem, ListItemText } from '@mui/material'
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2'
 
 function App() {
-  const [todoList, setTodoList] = useState<string[]>(['1', '2', '3'])
+  const [todoList, setTodoList] = useState<string[]>([])
   const [inputValue, setInputValue] = useState<string>('')
 
   const handleAddTodo = () => {
     setTodoList([...todoList, inputValue])
     setInputValue('')
+  }
+
+  const renderList = () => {
+    if (todoList.length) {
+      return (
+        todoList.map(todo => (
+          <ListItem key={todo}>
+            <ListItemText primary={todo} />
+          </ListItem>
+        ))
+      )
+    }
+
+     return (
+      <Box sx={{ height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Typography align="center" variant="h5">Your to-do list are empty</Typography>
+      </Box>
+     )
   }
 
   return (
@@ -42,11 +60,7 @@ function App() {
       <Paper sx={{ marginTop: 4 }} elevation={3}>
         <List>
           {
-            todoList.map(todo => (
-              <ListItem key={todo}>
-                <ListItemText primary={todo} />
-              </ListItem>
-            ))
+            renderList()
           }
         </List>
       </Paper>
