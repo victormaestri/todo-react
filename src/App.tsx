@@ -1,23 +1,46 @@
-import React, { useState } from 'react'
-import { Box, Button, Container, Paper, TextField, Typography } from '@mui/material'
-import { List, ListItem, ListItemText } from '@mui/material'
+import React, { useState, useCallback } from 'react'
+import { Box, Button, Checkbox, Container, Divider, ListItemButton, ListItemIcon, Paper, TextField, Typography } from '@mui/material'
+import { List, ListItem, ListItemText, ListSubheader } from '@mui/material'
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2'
 
+type TTodoList = {
+  id: number
+  name: string
+  checked: boolean
+}
+
 function App() {
-  const [todoList, setTodoList] = useState<string[]>([])
+  const [todoList, setTodoList] = useState<TTodoList[]>([])
   const [inputValue, setInputValue] = useState<string>('')
 
   const handleAddTodo = () => {
-    setTodoList([...todoList, inputValue])
+    setTodoList([...todoList, { id: todoList.length, name: inputValue, checked: false }])
     setInputValue('')
   }
+
+  const handleCheck = useCallback((id: number,value: boolean) => () => {
+    const newTodoList = todoList
+
+    newTodoList.map(todo => {
+      if (todo.id === id) return todo.checked = !value
+
+      return false
+    })
+
+    return setTodoList([...newTodoList])
+  }, [todoList])
 
   const renderList = () => {
     if (todoList.length) {
       return (
-        todoList.map(todo => (
-          <ListItem key={todo}>
-            <ListItemText primary={todo} />
+        todoList.filter(list => list.checked === false).map(({ id, name, checked }) => (
+          <ListItem key={`${name}-${id}`}>
+            <ListItemButton onClick={handleCheck(id, checked)}>
+              <ListItemText primary={name} />
+              <ListItemIcon>
+                <Checkbox checked={checked} />
+              </ListItemIcon>
+            </ListItemButton>
           </ListItem>
         ))
       )
@@ -28,6 +51,27 @@ function App() {
         <Typography align="center" variant="h5">Your to-do list are empty</Typography>
       </Box>
      )
+  }
+
+  const renderDoneList = () => {
+    if (todoList.length) {
+      return (
+        <>
+          <Divider />
+          <ListSubheader>Done</ListSubheader>
+          {todoList.filter(list => list.checked === true).map(({ id, name, checked }) => (
+            <ListItem key={`${name}-${id}`}>
+              <ListItemButton onClick={handleCheck(id, checked)}>
+                <ListItemText sx={{ textDecoration: 'line-through', color: '#ccc' }} primary={name} />
+                <ListItemIcon>
+                  <Checkbox color='default' checked={checked} />
+                </ListItemIcon>
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </>
+      )
+    }
   }
 
   return (
@@ -59,9 +103,8 @@ function App() {
       </Grid2>
       <Paper sx={{ marginTop: 4 }} elevation={3}>
         <List>
-          {
-            renderList()
-          }
+          { renderList() }
+          { renderDoneList() }
         </List>
       </Paper>
     </Container>
